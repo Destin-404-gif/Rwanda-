@@ -1,0 +1,27 @@
+# Local configuration with credentials
+config/config.php
+
+# Logs
+logs/*.log
+logs/*.txt
+
+# User uploads (keep folder + rules)
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+
+# Runtime / temp / editor files
+tmp/
+.cache/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*~
+node_modules/
+
+# SQLite (not used, safety)
+*.sqlite
+*.db

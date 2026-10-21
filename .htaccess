@@ -1,0 +1,71 @@
+# =====================================================================
+#  Rwanda Explorer - root .htaccess (Apache / InfinityFree)
+#  Clean URLs, HTTPS, security headers, front controller fallback
+# =====================================================================
+
+Options -Indexes
+DirectoryIndex index.php
+
+# ---- Force HTTPS (comment out locally if you do not use HTTPS) ----
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Redirect everything to https on the live host
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteCond %{HTTP_HOST} !^localhost$ [NC]
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Strip /index.php from URLs
+  RewriteCond %{THE_REQUEST} \s/+(.+?)index\.php[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+
+  # Serve real files and directories as-is (css, js, images, uploads)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Everything else -> front controller
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+# ---- Security headers ----
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(self), microphone=()"
+</IfModule>
+
+# ---- Block sensitive paths -----------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteRule ^(config|database|logs|app|views)(/|$) - [F,L,NC]
+  RewriteRule ^\.env - [F,L,NC]
+</IfModule>
+
+# ---- Block dotfiles ----
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# ---- Compression ----
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>
+
+# ---- Browser caching ----
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 6 months"
+  ExpiresByType image/png "access plus 6 months"
+  ExpiresByType image/webp "access plus 6 months"
+  ExpiresByType image/svg+xml "access plus 6 months"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+
+# ---- PHP: no error output in production ----
+<IfModule mod_php.c>
+  php_flag display_errors Off
+  php_value log_errors On
+</IfModule>

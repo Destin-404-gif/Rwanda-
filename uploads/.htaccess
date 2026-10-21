@@ -1,0 +1,14 @@
+# Uploaded files: serve images only, never execute code.
+Options -Indexes
+
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|phps|phar|pl|py|cgi|sh|htaccess)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>
